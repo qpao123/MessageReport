@@ -1,0 +1,21 @@
+{
+    "name": "messagereport/shawnzheng",
+    "description": "information upload",
+    "type": "library",
+    "require": {
+        "php": ">=7.0"
+    },
+    "license": "Apache",
+    "authors": [
+        {
+            "name": "zhengxiang",
+            "email": "zhengxiang@thotpoint.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload":{
+        "psr-4": {
+            "MessageReport\\" : "src/"
+        }
+    }
+}
