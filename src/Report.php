@@ -11,7 +11,7 @@ class Report {
 		$this->url = $url;
 	}
 
-	public function send($data, $type)
+	public function send($type, $data)
 	{
 		if (!method_exists($this, $type)) {
 			return ['code' => '-1', 'msg' => '请求错误！'];
