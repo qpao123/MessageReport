@@ -45,6 +45,17 @@ class Report {
 		return $this->curlPost($data);
 	}
 
+	private function userActive($data)
+	{
+		$rules = ['uid','guid','app_name','offer_name','app_type','page_id'];
+		if (!$data = $this->validate($data, $rules)) {
+			return ['code' => '-1', 'msg' => '参数不正确！'];
+		}
+
+		$data = $this->processData($data, 'user_active');
+		return $this->curlPost($data);
+	}
+
 	private function validate($data, $rules)
 	{
 		$newData = [];
