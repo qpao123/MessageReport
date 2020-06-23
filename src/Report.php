@@ -53,11 +53,11 @@ class Report {
 		}
 
 		if (isset($data['appid'])) {
-			$rules = array_merge($rules, 'appid');
+			$rules = array_merge($rules, ['appid']);
 		}
 
 		if (isset($data['package_name'])) {
-			$rules = array_merge($rules, 'package_name');
+			$rules = array_merge($rules, ['package_name']);
 		}
 
 		if (!$data = $this->validate($data, $rules)) {
