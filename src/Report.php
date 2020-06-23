@@ -47,7 +47,19 @@ class Report {
 
 	private function userActive($data)
 	{
-		$rules = ['uid','guid','app_name','offer_name','app_type','page_id'];
+		$rules = ['uid','guid','app_package','app_type','page_id'];
+		if (!isset($data['appid']) && !isset($data['package_name'])) {
+			return ['code' => '-1', 'msg' => '参数不正确！'];
+		}
+
+		if (isset($data['appid'])) {
+			$rules = array_merge($rules, 'appid');
+		}
+
+		if (isset($data['package_name'])) {
+			$rules = array_merge($rules, 'package_name');
+		}
+
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
