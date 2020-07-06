@@ -27,8 +27,57 @@ class Report {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
 
-		$data = $this->processData($data, 'sms_info');
-		return $this->curlPost($data);
+		return $this->do($data, 'sms_info');
+	}
+
+	private function action($data)
+	{
+		$rules = ['appid', 'user_id', 'type'];
+		if (!$data = $this->validate($data, $rules)) {
+			return ['code' => '-1', 'msg' => '参数不正确！'];
+		}
+			
+		return $this->do($data, 'action_info');
+	}
+
+	private function device($data)
+	{
+		$rules = ['appid', 'guid', 'channel', 'campaign'];
+		if (!$data = $this->validate($data, $rules)) {
+			return ['code' => '-1', 'msg' => '参数不正确！'];
+		}
+		
+		return $this->do($data, 'device_info');	
+	}
+
+	private function user($data)
+	{
+		$rules = ['appid', 'guid', 'user_id', 'mobile', 'user_name'];
+		if (!$data = $this->validate($data, $rules)) {
+			return ['code' => '-1', 'msg' => '参数不正确！'];
+		}
+		
+		return $this->do($data, 'user_info');	
+	}
+
+	private function product($data)
+	{
+		$rules = ['appid', 'guid', 'user_id', 'pid'];
+		if (!$data = $this->validate($data, $rules)) {
+			return ['code' => '-1', 'msg' => '参数不正确！'];
+		}
+		
+		return $this->do($data, 'product_info');	
+	}
+
+	private function active($data)
+	{
+		$rules = ['user_id', 'active_name', 'active_type'];
+		if (!$data = $this->validate($data, $rules)) {
+			return ['code' => '-1', 'msg' => '参数不正确！'];
+		}
+		
+		return $this->do($data, 'active_info');	
 	}
 
 	private function order($data)
@@ -41,8 +90,7 @@ class Report {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
 
-		$data = $this->processData($data, 'order_info');
-		return $this->curlPost($data);
+		return $this->do($data, 'order_info');
 	}
 
 	private function userActive($data)
@@ -64,8 +112,7 @@ class Report {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
 
-		$data = $this->processData($data, 'user_active');
-		return $this->curlPost($data);
+		return $this->do($data, 'user_active');
 	}
 
 	private function validate($data, $rules)
@@ -90,6 +137,13 @@ class Report {
 		];
 
 		return $data;
+	}
+
+	private function do($data, $type)
+	{
+		$data = $this->processData($data, $type);
+		
+		return $this->curlPost($data);
 	}
 
 	private function curlPost($data)
