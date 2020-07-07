@@ -32,14 +32,18 @@ class Report {
 
 	private function action($data)
 	{
-		$rules = ['appid', 'type'];
+		$rules = ['app_package', 'action_type'];
 		
 		if (isset($data['user_id'])) {
 			$rules = array_merge($rules, ['user_id']);
 		}
 
-		if (isset($data['guid'])) {
-			$rules = array_merge($rules, ['guid']);
+		if (isset($data['product_id'])) {
+			$rules = array_merge($rules, ['product_id']);
+		}
+
+		if (isset($data['device_id'])) {
+			$rules = array_merge($rules, ['device_id']);
 		}
 
 		if (!$data = $this->validate($data, $rules)) {
@@ -51,60 +55,70 @@ class Report {
 
 	private function device($data)
 	{
-		$rules = ['appid', 'guid', 'channel', 'campaign'];
+		$rules = ['app_package', 'device_id'];
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
 
 		//添加设备，触发安装事件
-		$this->action([
-			'appid' => $data['appid'], 
-			'guid'  => $data['guid'], 
-			'type'  => 1
+		$res = $this->action([
+			'app_package' => $data['app_package'], 
+			'device_id'   => $data['device_id'], 
+			'action_type' => 'app_install'
 		]);
+		if ($res['code'] != 0) {
+			return $res;
+		}
 		
 		return $this->do($data, 'device_info');	
 	}
 
 	private function user($data)
 	{
-		$rules = ['appid', 'guid', 'user_id', 'mobile', 'user_name'];
+		$rules = ['app_package', 'device_id', 'user_id'];
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
 		
 		//添加用户，触发注册事件
-		$this->action([
-			'appid'   => $data['appid'], 
-			'user_id' => $data['user_id'], 
-			'guid'    => $data['guid'], 
-			'type'    => 2
+		$res = $this->action([
+			'app_package' => $data['app_package'], 
+			'user_id'     => $data['user_id'], 
+			'device_id'   => $data['device_id'], 
+			'action_type'        => 'user_register'
 		]);
+		if ($res['code'] != 0) {
+			return $res;
+		}
 
 		return $this->do($data, 'user_info');	
 	}
 
 	private function product($data)
 	{
-		$rules = ['appid', 'guid', 'user_id', 'pid'];
+		$rules = ['app_package', 'device_id', 'user_id', 'product_id'];
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
 
 		//添加产品，触发offer事件
-		$this->action([
-			'appid'   => $data['appid'], 
-			'user_id' => $data['user_id'], 
-			'guid'    => $data['guid'], 
-			'type'    => 3
-		]);		
+		$res = $this->action([
+			'app_package' => $data['app_package'], 
+			'product_id'  => $data['product_id'],
+			'device_id'   => $data['device_id'], 
+			'user_id'     => $data['user_id'], 
+			'action_type'        => 'offer_down'
+		]);
+		if ($res['code'] != 0) {
+			return $res;
+		}		
 		
 		return $this->do($data, 'product_info');	
 	}
 
 	private function active($data)
 	{
-		$rules = ['user_id', 'active_name', 'active_type'];
+		$rules = ['user_id', 'active_name', 'app_package', 'device_id', 'product_id'];
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
@@ -115,8 +129,8 @@ class Report {
 	private function order($data)
 	{
 		$rules = [
-				'order_no', 'user_id', 'status', 'appid', 'pid', 
-				'guid', 'base_push', 'exception_type'
+				'order_no', 'user_id', 'status', 'app_package', 'product_id', 
+				'device_id', 'base_push', 'exception_type'
 			];
 
 		if (isset($data['push_time'])) {
@@ -129,12 +143,16 @@ class Report {
 
 		if ($data['status'] == 80 and $data['base_push'] == 1) {
 			//添加订单，触发api进件
-			$this->action([
-				'appid'   => $data['appid'], 
-				'user_id' => $data['user_id'], 
-				'guid'    => $data['guid'],
-				'type'    => 4
+			$res = $this->action([
+				'app_package' => $data['app_package'], 
+				'product_id'  => $data['product_id'],
+				'user_id'     => $data['user_id'], 
+				'device_id'   => $data['device_id'],
+				'action_type' => 'api_push',
 			]);
+			if ($res['code'] != 0) {
+				return $res;
+			}
 		}
 
 		return $this->do($data, 'order_info');
@@ -142,7 +160,7 @@ class Report {
 
 	private function userActive($data)
 	{
-		$rules = ['uid','guid','app_package','app_type','page_id'];
+		$rules = ['user_id','device_id','app_package','app_type','page_id'];
 		if (!isset($data['appid']) && !isset($data['package_name'])) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
@@ -164,19 +182,18 @@ class Report {
 
 	private function validate($data, $rules)
 	{
-		$newData = [];
 		foreach ($rules as $item) {
 			if (!isset($data[$item])) {
 				return false;			
 			}
-			$newData[$item] = trim($data[$item]);
 		}
 
-		return $newData;
+		return $data;
 	}
 
 	private function processData($data, $type)
 	{
+		$data['cdate'] = date('Y-m-d');
 		$data = [
 			'event_type' => $type,
 			'event_data' => json_encode($data),
