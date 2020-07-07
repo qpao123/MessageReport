@@ -84,8 +84,13 @@ class Report {
 	{
 		$rules = [
 				'order_no', 'user_id', 'status', 'appid', 'pid', 
-				'base_push', 'push_time', 'exception_type'
+				'base_push', 'exception_type'
 			];
+
+		if (isset($data['push_time'])) {
+			$rules = array_merge($rules, ['push_time']);
+		}	
+
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
@@ -162,14 +167,16 @@ class Report {
 	    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
 	    //执行命令
 	    $res = curl_exec($curl);
-	    
+
+	    $res = json_decode($res, true);
 	    if (!$res) {
-	    	return ['code' => '-1', 'msg' => curl_error($curl)];
+	    	$msg = curl_error($curl) ? curl_error($curl) : 'execute error';
+	    	return ['code' => '-1', 'msg' => $msg];
 	    }
 	    //关闭URL请求
 	    curl_close($curl);
 
-	    return json_decode($res, true);
+	    return $res;
 	}
 
 
