@@ -13,6 +13,7 @@ class Report {
 
 	public function send($type, $data)
 	{
+		$type = $this->camelize($type);
 		if (!method_exists($this, $type)) {
 			return ['code' => '-1', 'msg' => '请求错误！'];
 		}
@@ -30,7 +31,7 @@ class Report {
 		return $this->do($data, 'sms_info');
 	}
 
-	private function action($data)
+	private function actionInfo($data)
 	{
 		$rules = ['app_package', 'action_type'];
 		
@@ -53,7 +54,7 @@ class Report {
 		return $this->do($data, 'action_info');
 	}
 
-	private function device($data)
+	private function deviceInfo($data)
 	{
 		$rules = ['app_package', 'device_id'];
 		if (!$data = $this->validate($data, $rules)) {
@@ -73,7 +74,7 @@ class Report {
 		return $this->do($data, 'device_info');	
 	}
 
-	private function user($data)
+	private function userInfo($data)
 	{
 		$rules = ['app_package', 'device_id', 'user_id'];
 		if (!$data = $this->validate($data, $rules)) {
@@ -94,7 +95,7 @@ class Report {
 		return $this->do($data, 'user_info');	
 	}
 
-	private function product($data)
+	private function productInfo($data)
 	{
 		$rules = ['app_package', 'device_id', 'user_id', 'product_id'];
 		if (!$data = $this->validate($data, $rules)) {
@@ -116,7 +117,7 @@ class Report {
 		return $this->do($data, 'product_info');	
 	}
 
-	private function active($data)
+	private function activeInfo($data)
 	{
 		$rules = ['user_id', 'active_name', 'app_package', 'device_id', 'product_id'];
 		if (!$data = $this->validate($data, $rules)) {
@@ -126,7 +127,7 @@ class Report {
 		return $this->do($data, 'active_info');	
 	}
 
-	private function order($data)
+	private function orderInfo($data)
 	{
 		$rules = [
 				'order_no', 'user_id', 'status', 'app_package', 'product_id', 
@@ -238,6 +239,12 @@ class Report {
 	    return $res;
 	}
 
+	private function camelize($uncamelized_words,$separator='_')
+    {
+        $uncamelized_words = $separator. str_replace($separator, " ", strtolower($uncamelized_words));
+        
+        return ltrim(str_replace(" ", "", ucwords($uncamelized_words)), $separator );
+    }
 
 }
 
