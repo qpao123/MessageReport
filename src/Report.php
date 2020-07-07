@@ -32,7 +32,16 @@ class Report {
 
 	private function action($data)
 	{
-		$rules = ['appid', 'user_id', 'type'];
+		$rules = ['appid', 'type'];
+		
+		if (isset($data['user_id'])) {
+			$rules = array_merge($rules, ['user_id']);
+		}
+
+		if (isset($data['guid'])) {
+			$rules = array_merge($rules, ['guid']);
+		}
+
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
@@ -46,6 +55,13 @@ class Report {
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
+
+		//添加设备，触发安装事件
+		$this->action([
+			'appid' => $data['appid'], 
+			'guid'  => $data['guid'], 
+			'type'  => 1
+		]);
 		
 		return $this->do($data, 'device_info');	
 	}
@@ -57,6 +73,14 @@ class Report {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
 		
+		//添加用户，触发注册事件
+		$this->action([
+			'appid'   => $data['appid'], 
+			'user_id' => $data['user_id'], 
+			'guid'    => $data['guid'], 
+			'type'    => 2
+		]);
+
 		return $this->do($data, 'user_info');	
 	}
 
@@ -66,6 +90,14 @@ class Report {
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
+
+		//添加产品，触发offer事件
+		$this->action([
+			'appid'   => $data['appid'], 
+			'user_id' => $data['user_id'], 
+			'guid'    => $data['guid'], 
+			'type'    => 3
+		]);		
 		
 		return $this->do($data, 'product_info');	
 	}
@@ -84,7 +116,7 @@ class Report {
 	{
 		$rules = [
 				'order_no', 'user_id', 'status', 'appid', 'pid', 
-				'base_push', 'exception_type'
+				'guid', 'base_push', 'exception_type'
 			];
 
 		if (isset($data['push_time'])) {
@@ -93,6 +125,16 @@ class Report {
 
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
+		}
+
+		if ($data['status'] == 80 and $data['base_push'] == 1) {
+			//添加订单，触发api进件
+			$this->action([
+				'appid'   => $data['appid'], 
+				'user_id' => $data['user_id'], 
+				'guid'    => $data['guid'],
+				'type'    => 4
+			]);
 		}
 
 		return $this->do($data, 'order_info');
