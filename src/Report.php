@@ -83,8 +83,8 @@ class Report {
 	private function order($data)
 	{
 		$rules = [
-				'order_no','user_id','status','appid','app_name','app_package',
-				'offer_name','offer_package','base_push','exception_type','push_time'
+				'order_no', 'user_id', 'status', 'appid', 'pid', 
+				'base_push', 'push_time', 'exception_type'
 			];
 		if (!$data = $this->validate($data, $rules)) {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
