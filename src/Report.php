@@ -62,7 +62,7 @@ class Report {
 		}
 
 		//添加设备，触发安装事件
-		$res = $this->action([
+		$res = $this->actionInfo([
 			'app_package' => $data['app_package'], 
 			'device_id'   => $data['device_id'], 
 			'action_type' => 'app_install'
@@ -82,7 +82,7 @@ class Report {
 		}
 		
 		//添加用户，触发注册事件
-		$res = $this->action([
+		$res = $this->actionInfo([
 			'app_package' => $data['app_package'], 
 			'user_id'     => $data['user_id'], 
 			'device_id'   => $data['device_id'], 
@@ -103,7 +103,7 @@ class Report {
 		}
 
 		//添加产品，触发offer事件
-		$res = $this->action([
+		$res = $this->actionInfo([
 			'app_package' => $data['app_package'], 
 			'product_id'  => $data['product_id'],
 			'device_id'   => $data['device_id'], 
@@ -144,7 +144,7 @@ class Report {
 
 		if ($data['status'] == 80 and $data['base_push'] == 1) {
 			//添加订单，触发api进件
-			$res = $this->action([
+			$res = $this->actionInfo([
 				'app_package' => $data['app_package'], 
 				'product_id'  => $data['product_id'],
 				'user_id'     => $data['user_id'], 
