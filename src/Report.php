@@ -86,7 +86,7 @@ class Report {
 			'app_package' => $data['app_package'], 
 			'user_id'     => $data['user_id'], 
 			'device_id'   => $data['device_id'], 
-			'action_type'        => 'user_register'
+			'action_type' => 'user_register'
 		]);
 		if ($res['code'] != 0) {
 			return $res;
@@ -108,7 +108,7 @@ class Report {
 			'product_id'  => $data['product_id'],
 			'device_id'   => $data['device_id'], 
 			'user_id'     => $data['user_id'], 
-			'action_type'        => 'offer_down'
+			'action_type' => 'offer_down'
 		]);
 		if ($res['code'] != 0) {
 			return $res;
@@ -142,14 +142,24 @@ class Report {
 			return ['code' => '-1', 'msg' => '参数不正确！'];
 		}
 
+		$action_type = '';
 		if ($data['status'] == 80 and $data['base_push'] == 1) {
-			//添加订单，触发api进件
+			$action_type = 'api_push'; //进件
+		} else if ($data['status'] == 90) {
+			$action_type = 'api_apply'; //申请
+		} else if ($data['status'] == 170) {
+			$action_type = 'api_loan'; //放款
+		} else if ($data['status'] == 200) {
+			$action_type = 'api_success'; //结清	
+		}
+
+		if ($action_type) {
 			$res = $this->actionInfo([
 				'app_package' => $data['app_package'], 
 				'product_id'  => $data['product_id'],
 				'user_id'     => $data['user_id'], 
 				'device_id'   => $data['device_id'],
-				'action_type' => 'api_push',
+				'action_type' => $action_type,
 			]);
 			if ($res['code'] != 0) {
 				return $res;
