@@ -241,11 +241,15 @@ class Report {
 	    $res = json_decode($res, true);
 	    if (!$res) {
 	    	$msg = curl_error($curl) ? curl_error($curl) : 'execute error';
+	    	$this->log($data, $msg);
 	    	return ['code' => '-1', 'msg' => $msg];
 	    }
 	    //关闭URL请求
 	    curl_close($curl);
 
+	    if ($res['code'] != 0) {
+	    	$this->log($data, $res['msg']);
+	    }
 	    return $res;
 	}
 
@@ -254,6 +258,24 @@ class Report {
         $uncamelized_words = $separator. str_replace($separator, " ", strtolower($uncamelized_words));
         
         return ltrim(str_replace(" ", "", ucwords($uncamelized_words)), $separator );
+    }
+
+    private function log($data, $msg)
+    {
+    	$dir = dirname($_SERVER['SCRIPT_FILENAME']);
+    	$data = ['data' => $data, 'msg' => $msg];
+    	$data = var_export($data, true);
+    	
+    	if (!is_dir($dir)) {
+    		$res = mkdir($dir, 0777, true);
+    		if ($res) {
+    			$logName = 'reportlog-' . date('Y-m-d') . '.log';
+    			file_put_contents($logName, $data . PHP_EOL, FILE_APPEND);	
+    		}
+    	} else {
+    		$logName = 'reportlog-' . date('Y-m-d') . '.log';
+    		file_put_contents($logName, $data . PHP_EOL, FILE_APPEND);
+    	}
     }
 
 }
