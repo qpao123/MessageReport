@@ -155,6 +155,7 @@ class Report {
 
 		if ($action_type) {
 			$res = $this->actionInfo([
+				'order_no'    => $data['order_no'],
 				'app_package' => $data['app_package'], 
 				'product_id'  => $data['product_id'],
 				'user_id'     => $data['user_id'], 
