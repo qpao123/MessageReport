@@ -151,6 +151,8 @@ class Report {
 			$action_type = 'api_loan'; //放款
 		} else if ($data['status'] == 200) {
 			$action_type = 'api_success'; //结清	
+		} else if ($data['status'] == 180) {
+			$action_type = 'api_overdue'; //逾期
 		}
 
 		if ($action_type) {
